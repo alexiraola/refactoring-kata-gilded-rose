@@ -109,6 +109,24 @@ class BackstagePassItem implements QualityUpdater {
   }
 }
 
+class ConjuredItem implements QualityUpdater {
+  constructor(private item: Item) { }
+
+  updateQuality(): Item {
+    let quality = Quality.create(this.item.quality);
+    let sellIn = this.item.sellIn;
+
+
+    quality = quality.decrease().decrease();
+    sellIn = sellIn - 1;
+
+    if (sellIn < 0 && quality.value() > 0) {
+      quality = quality.decrease().decrease();
+    }
+    return new Item(this.item.name, sellIn, quality.value());
+  }
+}
+
 export class GildedRose {
   items: Array<Item>;
 
@@ -124,6 +142,8 @@ export class GildedRose {
         return new AgedBrieItem(item).updateQuality();
       } else if (item.name === 'Backstage passes to a TAFKAL80ETC concert') {
         return new BackstagePassItem(item).updateQuality();
+      } else if (item.name === 'Conjured') {
+        return new ConjuredItem(item).updateQuality();
       } else {
         return new StandardItem(item).updateQuality();
       }

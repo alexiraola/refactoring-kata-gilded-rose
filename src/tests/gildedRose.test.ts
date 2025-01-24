@@ -114,4 +114,20 @@ describe('The Gilded Rose', () => {
       expect(items[0]).toEqual({ "name": "Backstage passes to a TAFKAL80ETC concert", "quality": 0, "sellIn": -1 });
     });
   });
+
+  describe("Conjured items", () => {
+    it("quality degrades twice as fast as normal items", () => {
+      const gildedRose = new GildedRose([
+        new Item('Conjured', 5, 10),
+        new Item('Conjured', 0, 10)
+      ]);
+
+      const items = gildedRose.updateQuality();
+
+      expect(items).toEqual([
+        { "name": "Conjured", "quality": 8, "sellIn": 4 },
+        { "name": "Conjured", "quality": 6, "sellIn": -1 }
+      ]);
+    });
+  });
 });
