@@ -10,6 +10,35 @@ export class Item {
   }
 }
 
+class Quality {
+  private constructor(private readonly quality: number) { }
+
+  static create(quality: number) {
+    if (quality < 0 || quality > 50) {
+      throw new Error(`Invalid quality ${quality}`);
+    }
+    return new Quality(quality);
+  }
+
+  value() {
+    return this.quality;
+  }
+
+  increase() {
+    if (this.quality < 50) {
+      return new Quality(this.quality + 1);
+    }
+    return new Quality(this.quality);
+  }
+
+  decrease() {
+    if (this.quality > 0) {
+      return new Quality(this.quality - 1);
+    }
+    return new Quality(this.quality);
+  }
+}
+
 interface QualityUpdater {
   updateQuality(): Item;
 }
@@ -18,16 +47,17 @@ class StandardItem implements QualityUpdater {
   constructor(private item: Item) { }
 
   updateQuality(): Item {
-    let newItem = this.item;
+    let quality = Quality.create(this.item.quality);
+    let sellIn = this.item.sellIn;
 
-    if (this.item.quality > 0) {
-      newItem.quality = this.item.quality - 1;
+
+    quality = quality.decrease();
+    sellIn = sellIn - 1;
+
+    if (sellIn < 0 && quality.value() > 0) {
+      quality = quality.decrease();
     }
-    newItem.sellIn = this.item.sellIn - 1;
-    if (newItem.sellIn < 0 && newItem.quality > 0) {
-      newItem.quality = newItem.quality - 1;
-    }
-    return newItem;
+    return new Item(this.item.name, sellIn, quality.value());
   }
 }
 
@@ -35,16 +65,15 @@ class AgedBrieItem implements QualityUpdater {
   constructor(private item: Item) { }
 
   updateQuality(): Item {
-    let newItem = this.item;
+    let quality = Quality.create(this.item.quality);
+    let sellIn = this.item.sellIn;
 
-    if (this.item.quality < 50) {
-      newItem.quality = this.item.quality + 1;
+    quality = quality.increase();
+    sellIn = sellIn - 1;
+    if (sellIn < 0 && quality.value() < 50) {
+      quality = quality.increase();
     }
-    newItem.sellIn = this.item.sellIn - 1;
-    if (newItem.sellIn < 0 && newItem.quality < 50) {
-      newItem.quality = newItem.quality + 1;
-    }
-    return newItem;
+    return new Item(this.item.name, sellIn, quality.value());
   }
 }
 
@@ -60,26 +89,23 @@ class BackstagePassItem implements QualityUpdater {
   constructor(private item: Item) { }
 
   updateQuality(): Item {
-    let newItem = this.item;
+    let quality = Quality.create(this.item.quality);
+    let sellIn = this.item.sellIn;
 
-    if (this.item.quality < 50) {
-      newItem.quality = this.item.quality + 1;
-      if (this.item.sellIn < 11) {
-        if (newItem.quality < 50) {
-          newItem.quality = newItem.quality + 1;
-        }
+    if (quality.value() < 50) {
+      quality = quality.increase();
+      if (sellIn < 11) {
+        quality = quality.increase();
       }
-      if (this.item.sellIn < 6) {
-        if (newItem.quality < 50) {
-          newItem.quality = newItem.quality + 1;
-        }
+      if (sellIn < 6) {
+        quality = quality.increase();
       }
     }
-    newItem.sellIn = this.item.sellIn - 1;
-    if (newItem.sellIn < 0) {
-      newItem.quality = 0;
+    sellIn = sellIn - 1;
+    if (sellIn < 0) {
+      quality = Quality.create(0);
     }
-    return newItem;
+    return new Item(this.item.name, sellIn, quality.value());
   }
 }
 
