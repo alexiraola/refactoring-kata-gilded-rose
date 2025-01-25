@@ -1,3 +1,5 @@
+import { Quality, Sellin } from "./items";
+
 export class Item {
   name: string;
   sellIn: number;
@@ -10,35 +12,6 @@ export class Item {
   }
 }
 
-class Quality {
-  private constructor(private readonly quality: number) { }
-
-  static create(quality: number) {
-    if (quality < 0 || quality > 50) {
-      throw new Error(`Invalid quality ${quality}`);
-    }
-    return new Quality(quality);
-  }
-
-  value() {
-    return this.quality;
-  }
-
-  increase() {
-    if (this.quality < 50) {
-      return new Quality(this.quality + 1);
-    }
-    return new Quality(this.quality);
-  }
-
-  decrease() {
-    if (this.quality > 0) {
-      return new Quality(this.quality - 1);
-    }
-    return new Quality(this.quality);
-  }
-}
-
 interface QualityUpdater {
   updateQuality(): Item;
 }
@@ -48,16 +21,15 @@ class StandardItem implements QualityUpdater {
 
   updateQuality(): Item {
     let quality = Quality.create(this.item.quality);
-    let sellIn = this.item.sellIn;
-
+    let sellIn = Sellin.create(this.item.sellIn);
 
     quality = quality.decrease();
-    sellIn = sellIn - 1;
+    sellIn = sellIn.decrease();
 
-    if (sellIn < 0 && quality.value() > 0) {
+    if (sellIn.hasPassed()) {
       quality = quality.decrease();
     }
-    return new Item(this.item.name, sellIn, quality.value());
+    return new Item(this.item.name, sellIn.value(), quality.value());
   }
 }
 
