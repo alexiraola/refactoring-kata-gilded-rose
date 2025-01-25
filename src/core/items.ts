@@ -27,14 +27,12 @@ export class StandardItem implements InventoryItem {
 
   updateQuality(): Item {
     let quality = Quality.create(this.item.quality);
-    let sellIn = SellIn.create(this.item.sellIn);
+    const sellIn = SellIn.create(this.item.sellIn).decrease();
 
-    quality = quality.decrease();
-    sellIn = sellIn.decrease();
+    quality = sellIn.hasPassed()
+      ? quality.decrease().decrease()
+      : quality.decrease();
 
-    if (sellIn.hasPassed()) {
-      quality = quality.decrease();
-    }
     return new Item(this.item.name, sellIn.value(), quality.value());
   }
 }
