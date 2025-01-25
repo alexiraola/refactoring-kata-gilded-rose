@@ -1,11 +1,28 @@
 import { Item } from "./gildedRose";
 import { Quality, Sellin } from "./value.objects";
 
-export interface QualityUpdater {
+export interface InventoryItem {
   updateQuality(): Item;
 }
 
-export class StandardItem implements QualityUpdater {
+export class ItemFactory {
+  static create(item: Item): InventoryItem {
+    switch (item.name) {
+      case "Sulfuras, Hand of Ragnaros":
+        return new SulfurasItem(item);
+      case "Aged Brie":
+        return new AgedBrieItem(item);
+      case "Backstage passes to a TAFKAL80ETC concert":
+        return new BackstagePassItem(item);
+      case "Conjured":
+        return new ConjuredItem(item);
+      default:
+        return new StandardItem(item);
+    }
+  }
+}
+
+export class StandardItem implements InventoryItem {
   constructor(private item: Item) { }
 
   updateQuality(): Item {
@@ -22,7 +39,7 @@ export class StandardItem implements QualityUpdater {
   }
 }
 
-export class AgedBrieItem implements QualityUpdater {
+export class AgedBrieItem implements InventoryItem {
   constructor(private item: Item) { }
 
   updateQuality(): Item {
@@ -38,7 +55,7 @@ export class AgedBrieItem implements QualityUpdater {
   }
 }
 
-export class SulfurasItem implements QualityUpdater {
+export class SulfurasItem implements InventoryItem {
   constructor(private item: Item) { }
 
   updateQuality(): Item {
@@ -46,7 +63,7 @@ export class SulfurasItem implements QualityUpdater {
   }
 }
 
-export class BackstagePassItem implements QualityUpdater {
+export class BackstagePassItem implements InventoryItem {
   constructor(private item: Item) { }
 
   updateQuality(): Item {
@@ -70,7 +87,7 @@ export class BackstagePassItem implements QualityUpdater {
   }
 }
 
-export class ConjuredItem implements QualityUpdater {
+export class ConjuredItem implements InventoryItem {
   constructor(private item: Item) { }
 
   updateQuality(): Item {

@@ -1,4 +1,4 @@
-import { AgedBrieItem, BackstagePassItem, ConjuredItem, StandardItem, SulfurasItem } from "./items";
+import { ItemFactory } from "./items";
 
 export class Item {
   name: string;
@@ -20,18 +20,6 @@ export class GildedRose {
   }
 
   updateQuality() {
-    return this.items.map(item => {
-      if (item.name === "Sulfuras, Hand of Ragnaros") {
-        return new SulfurasItem(item).updateQuality();
-      } else if (item.name === 'Aged Brie') {
-        return new AgedBrieItem(item).updateQuality();
-      } else if (item.name === 'Backstage passes to a TAFKAL80ETC concert') {
-        return new BackstagePassItem(item).updateQuality();
-      } else if (item.name === 'Conjured') {
-        return new ConjuredItem(item).updateQuality();
-      } else {
-        return new StandardItem(item).updateQuality();
-      }
-    });
+    return this.items.map(item => ItemFactory.create(item).updateQuality());
   }
 }
