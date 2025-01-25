@@ -1,8 +1,8 @@
-export class Sellin {
+export class SellIn {
   private constructor(private readonly sellIn: number) { }
 
   static create(sellin: number) {
-    return new Sellin(sellin);
+    return new SellIn(sellin);
   }
 
   value() {
@@ -14,7 +14,7 @@ export class Sellin {
   }
 
   decrease() {
-    return new Sellin(this.sellIn - 1);
+    return new SellIn(this.sellIn - 1);
   }
 }
 

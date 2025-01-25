@@ -1,5 +1,5 @@
 import { Item } from "./gildedRose";
-import { Quality, Sellin } from "./value.objects";
+import { Quality, SellIn } from "./value.objects";
 
 export interface InventoryItem {
   updateQuality(): Item;
@@ -27,7 +27,7 @@ export class StandardItem implements InventoryItem {
 
   updateQuality(): Item {
     let quality = Quality.create(this.item.quality);
-    let sellIn = Sellin.create(this.item.sellIn);
+    let sellIn = SellIn.create(this.item.sellIn);
 
     quality = quality.decrease();
     sellIn = sellIn.decrease();
@@ -44,14 +44,15 @@ export class AgedBrieItem implements InventoryItem {
 
   updateQuality(): Item {
     let quality = Quality.create(this.item.quality);
-    let sellIn = this.item.sellIn;
+    let sellIn = SellIn.create(this.item.sellIn);
 
     quality = quality.increase();
-    sellIn = sellIn - 1;
-    if (sellIn < 0 && quality.value() < 50) {
+    sellIn = sellIn.decrease();
+
+    if (sellIn.hasPassed()) {
       quality = quality.increase();
     }
-    return new Item(this.item.name, sellIn, quality.value());
+    return new Item(this.item.name, sellIn.value(), quality.value());
   }
 }
 
@@ -68,22 +69,22 @@ export class BackstagePassItem implements InventoryItem {
 
   updateQuality(): Item {
     let quality = Quality.create(this.item.quality);
-    let sellIn = this.item.sellIn;
+    let sellIn = SellIn.create(this.item.sellIn);
 
-    if (quality.value() < 50) {
+    quality = quality.increase();
+    if (sellIn.value() < 11) {
       quality = quality.increase();
-      if (sellIn < 11) {
-        quality = quality.increase();
-      }
-      if (sellIn < 6) {
-        quality = quality.increase();
-      }
     }
-    sellIn = sellIn - 1;
-    if (sellIn < 0) {
+    if (sellIn.value() < 6) {
+      quality = quality.increase();
+    }
+
+    sellIn = sellIn.decrease();
+
+    if (sellIn.hasPassed()) {
       quality = Quality.create(0);
     }
-    return new Item(this.item.name, sellIn, quality.value());
+    return new Item(this.item.name, sellIn.value(), quality.value());
   }
 }
 
@@ -92,16 +93,17 @@ export class ConjuredItem implements InventoryItem {
 
   updateQuality(): Item {
     let quality = Quality.create(this.item.quality);
-    let sellIn = this.item.sellIn;
-
+    let sellIn = SellIn.create(this.item.sellIn);
 
     quality = quality.decrease().decrease();
-    sellIn = sellIn - 1;
 
-    if (sellIn < 0 && quality.value() > 0) {
+    sellIn = sellIn.decrease();
+
+    if (sellIn.hasPassed()) {
       quality = quality.decrease().decrease();
     }
-    return new Item(this.item.name, sellIn, quality.value());
+
+    return new Item(this.item.name, sellIn.value(), quality.value());
   }
 }
 
