@@ -32,7 +32,7 @@ export class StandardItem implements InventoryItem {
     const newSellIn = this.sellIn.decrease();
 
     const newQuality = newSellIn.hasPassed()
-      ? this.quality.decrease().decrease()
+      ? this.quality.decrease(2)
       : this.quality.decrease();
 
     return new Item(this.name, newSellIn.value(), newQuality.value());
@@ -46,7 +46,7 @@ export class AgedBrieItem implements InventoryItem {
     const newSellIn = this.sellIn.decrease();
 
     const newQuality = newSellIn.hasPassed()
-      ? this.quality.increase().increase()
+      ? this.quality.increase(2)
       : this.quality.increase();
 
     return new Item(this.name, newSellIn.value(), newQuality.value());
@@ -76,10 +76,10 @@ export class BackstagePassItem implements InventoryItem {
 
   private newQuality() {
     if (this.sellIn.value() < 6) {
-      return this.quality.increase().increase().increase();
+      return this.quality.increase(3)
     }
     if (this.sellIn.value() < 11) {
-      return this.quality.increase().increase();
+      return this.quality.increase(2)
     }
     return this.quality.increase();
   }
@@ -92,8 +92,8 @@ export class ConjuredItem implements InventoryItem {
     const newSellIn = this.sellIn.decrease();
 
     const newQuality = newSellIn.hasPassed()
-      ? this.quality.decrease().decrease().decrease().decrease()
-      : this.quality.decrease().decrease();
+      ? this.quality.decrease(4)
+      : this.quality.decrease(2)
 
     return new Item(this.name, newSellIn.value(), newQuality.value());
   }
