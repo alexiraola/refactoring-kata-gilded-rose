@@ -7,50 +7,49 @@ export interface InventoryItem {
 
 export class ItemFactory {
   static create(item: Item): InventoryItem {
+    const sellIn = SellIn.create(item.sellIn);
+    const quality = Quality.create(item.quality);
+
     switch (item.name) {
       case "Sulfuras, Hand of Ragnaros":
         return new SulfurasItem(item);
       case "Aged Brie":
-        return new AgedBrieItem(item);
+        return new AgedBrieItem(item.name, sellIn, quality);
       case "Backstage passes to a TAFKAL80ETC concert":
-        return new BackstagePassItem(item);
+        return new BackstagePassItem(item.name, sellIn, quality);
       case "Conjured":
-        return new ConjuredItem(item);
+        return new ConjuredItem(item.name, sellIn, quality);
       default:
-        return new StandardItem(item);
+        return new StandardItem(item.name, sellIn, quality);
     }
   }
 }
 
 export class StandardItem implements InventoryItem {
-  constructor(private item: Item) { }
+  constructor(private name: string, private sellIn: SellIn, private quality: Quality) { }
 
   updateQuality(): Item {
-    let quality = Quality.create(this.item.quality);
-    const sellIn = SellIn.create(this.item.sellIn).decrease();
+    const newSellIn = this.sellIn.decrease();
 
-    quality = sellIn.hasPassed()
-      ? quality.decrease().decrease()
-      : quality.decrease();
+    const newQuality = newSellIn.hasPassed()
+      ? this.quality.decrease().decrease()
+      : this.quality.decrease();
 
-    return new Item(this.item.name, sellIn.value(), quality.value());
+    return new Item(this.name, newSellIn.value(), newQuality.value());
   }
 }
 
 export class AgedBrieItem implements InventoryItem {
-  constructor(private item: Item) { }
+  constructor(private name: string, private sellIn: SellIn, private quality: Quality) { }
 
   updateQuality(): Item {
-    let quality = Quality.create(this.item.quality);
-    let sellIn = SellIn.create(this.item.sellIn);
+    const newSellIn = this.sellIn.decrease();
 
-    quality = quality.increase();
-    sellIn = sellIn.decrease();
+    const newQuality = newSellIn.hasPassed()
+      ? this.quality.increase().increase()
+      : this.quality.increase();
 
-    if (sellIn.hasPassed()) {
-      quality = quality.increase();
-    }
-    return new Item(this.item.name, sellIn.value(), quality.value());
+    return new Item(this.name, newSellIn.value(), newQuality.value());
   }
 }
 
@@ -63,45 +62,40 @@ export class SulfurasItem implements InventoryItem {
 }
 
 export class BackstagePassItem implements InventoryItem {
-  constructor(private item: Item) { }
+  constructor(private name: string, private sellIn: SellIn, private quality: Quality) { }
 
   updateQuality(): Item {
-    let quality = Quality.create(this.item.quality);
-    let sellIn = SellIn.create(this.item.sellIn);
+    const newQuality = this.newQuality();
+    const newSellIn = this.sellIn.decrease();
 
-    quality = quality.increase();
-    if (sellIn.value() < 11) {
-      quality = quality.increase();
+    if (newSellIn.hasPassed()) {
+      return new Item(this.name, newSellIn.value(), Quality.create(0).value());
     }
-    if (sellIn.value() < 6) {
-      quality = quality.increase();
-    }
+    return new Item(this.name, newSellIn.value(), newQuality.value());
+  }
 
-    sellIn = sellIn.decrease();
-
-    if (sellIn.hasPassed()) {
-      quality = Quality.create(0);
+  private newQuality() {
+    if (this.sellIn.value() < 6) {
+      return this.quality.increase().increase().increase();
     }
-    return new Item(this.item.name, sellIn.value(), quality.value());
+    if (this.sellIn.value() < 11) {
+      return this.quality.increase().increase();
+    }
+    return this.quality.increase();
   }
 }
 
 export class ConjuredItem implements InventoryItem {
-  constructor(private item: Item) { }
+  constructor(private name: string, private sellIn: SellIn, private quality: Quality) { }
 
   updateQuality(): Item {
-    let quality = Quality.create(this.item.quality);
-    let sellIn = SellIn.create(this.item.sellIn);
+    const newSellIn = this.sellIn.decrease();
 
-    quality = quality.decrease().decrease();
+    const newQuality = newSellIn.hasPassed()
+      ? this.quality.decrease().decrease().decrease().decrease()
+      : this.quality.decrease().decrease();
 
-    sellIn = sellIn.decrease();
-
-    if (sellIn.hasPassed()) {
-      quality = quality.decrease().decrease();
-    }
-
-    return new Item(this.item.name, sellIn.value(), quality.value());
+    return new Item(this.name, newSellIn.value(), newQuality.value());
   }
 }
 

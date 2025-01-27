@@ -23,7 +23,7 @@ export class Quality {
   private constructor(private readonly quality: number) { }
 
   static create(quality: number) {
-    if (quality < 0 || quality > Quality.MAX_QUALITY) {
+    if (quality !== 80 && (quality < 0 || quality > Quality.MAX_QUALITY)) {
       throw new Error(`Invalid quality ${quality}`);
     }
     return new Quality(quality);
