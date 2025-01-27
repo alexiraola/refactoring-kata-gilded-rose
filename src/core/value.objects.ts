@@ -1,20 +1,20 @@
 export class SellIn {
-  private constructor(private readonly sellIn: number) { }
+  private constructor(private readonly sellInDays: number) { }
 
   static create(sellin: number) {
     return new SellIn(sellin);
   }
 
   value() {
-    return this.sellIn;
+    return this.sellInDays;
   }
 
   hasPassed() {
-    return this.sellIn < 0;
+    return this.sellInDays < 0;
   }
 
   decrease() {
-    return new SellIn(this.sellIn - 1);
+    return new SellIn(this.sellInDays - 1);
   }
 }
 
@@ -33,16 +33,16 @@ export class Quality {
     return this.quality;
   }
 
-  increase() {
+  increase(by: number = 1) {
     if (this.quality < Quality.MAX_QUALITY) {
-      return new Quality(this.quality + 1);
+      return new Quality(this.quality + by);
     }
     return new Quality(this.quality);
   }
 
-  decrease() {
+  decrease(by: number = 1) {
     if (this.quality > 0) {
-      return new Quality(this.quality - 1);
+      return new Quality(this.quality - by);
     }
     return new Quality(this.quality);
   }
