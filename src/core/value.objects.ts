@@ -19,11 +19,14 @@ export class SellIn {
 }
 
 export class Quality {
-  static MAX_QUALITY = 50;
+  static maxQuality = 50;
   private constructor(private readonly quality: number) { }
 
   static create(quality: number) {
-    if (quality !== 80 && (quality < 0 || quality > Quality.MAX_QUALITY)) {
+    const isSulfuraQuality = quality === 80;
+    const isInvalidQuality = quality < 0 || quality > Quality.maxQuality;
+
+    if (!isSulfuraQuality && isInvalidQuality) {
       throw new Error(`Invalid quality ${quality}`);
     }
     return new Quality(quality);
@@ -34,7 +37,7 @@ export class Quality {
   }
 
   increase(by: number = 1) {
-    if (this.quality < Quality.MAX_QUALITY) {
+    if (this.quality < Quality.maxQuality) {
       return new Quality(this.quality + by);
     }
     return new Quality(this.quality);
